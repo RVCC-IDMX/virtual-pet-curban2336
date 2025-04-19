@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /**
  * app.js
  *
@@ -6,15 +7,16 @@
  */
 
 // TODO: Import the Pet constructor and related constants
-// import { Pet, PetTypes, States } from './pet.js';
+import { Pet, PetTypes, States } from './pet.js';
 
 // Application state variables
-let currentPet = null;
-let updateInterval = null;
+const currentPet = null;
+const updateInterval = null;
+const elements = {};
 
 /**
  * Initialize the application
- * 
+ *
  * TODO: Implement this function to:
  * - Select and store DOM elements
  * - Populate the pet selector dropdown
@@ -23,38 +25,70 @@ let updateInterval = null;
  */
 function initApp() {
   // TODO: Select DOM elements
+  elements = {
+    petDisplay: document.getElementById('pet-display'),
+    statusDisplay: document.getElementById('status-display'),
+    petSelector: document.getElementById('pet-selector'),
+    nameInput: document.getElementById('pet-name'),
+    createButton: document.getElementById('create-pet'),
+    feedButton: document.getElementById('feed-pet'),
+    resetButton: document.getElementById('reset-pet'),
+    infoDisplay: document.getElementById('info-display'),
+    moodBar: document.getElementById('mood-bar'),
+  };
 
   // TODO: Populate pet selector dropdown
-
+  populatePetSelector();
   // TODO: Set up event listeners
-  
+  setupEventListeners();
   // TODO: Show the pet creation UI
+  showCreationUI();
 }
 
 /**
  * Populate the pet selector dropdown
- * 
+ *
  * TODO: Implement this function to:
  * - Add an option for each pet type
  * - Set a default selected type
  */
 function populatePetSelector() {
   // TODO: Implement pet selector population
+  const selector = elements.petSelector;
+
+  if (!selector) {
+    return;
+  }
+
+  selector.innerHTML = '';
+
+  Object.entries(PetTypes).forEach(([key, value]) => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = key.charAt(0) + key.slice(1).toLowerCase();
+    selector.appendChild(option);
+  });
+
+  selector.value = PetTypes.COW;
 }
 
 /**
  * Set up event listeners for buttons and interactions
- * 
+ *
  * TODO: Implement this function to:
  * - Add event listeners for the create, feed, and reset buttons
  */
 function setupEventListeners() {
   // TODO: Implement event listeners setup
+  elements.createButton?.addEventListener('click', createNewPet);
+  elements.feedButton?.addEventListener('click', feedPet);
+  elements.resetButton?.addEventListener('click', resetPet);
+
 }
 
 /**
  * Create a new pet based on form selections
- * 
+ *
  * TODO: Implement this function to:
  * - Get the selected pet type and name
  * - Create a new Pet instance
@@ -63,6 +97,18 @@ function setupEventListeners() {
  */
 function createNewPet() {
   // TODO: Implement pet creation
+  const type = elements.petSelector?.value || PetTypes.COW;
+  let name = elements.nameInput?.value.trim() || '';
+
+  if (!name) {
+    name = type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
+  currentPet = new Pet(name, type);
+
+  hideCreationUI();
+  updatePetDisplay();
+  startUpdateCycle();
 }
 
 /**
@@ -70,18 +116,21 @@ function createNewPet() {
  */
 function hideCreationUI() {
   // TODO: Implement UI transition
+  document.getElementById('pet-creation')?.classList.add('hidden');
+  document.getElementById('pet-interaction')?.classList.remove('hidden');
 }
 
 /**
  * Show the pet creation UI and hide the pet interaction UI
  */
 function showCreationUI() {
-  // TODO: Implement UI transition
+  document.getElementById('pet-creation')?.classList.remove('hidden');
+  document.getElementById('pet-interaction')?.classList.add('hidden');
 }
 
 /**
  * Update the pet display and status elements
- * 
+ *
  * TODO: Implement this function to:
  * - Update the pet's visual representation
  * - Update the status message
@@ -90,22 +139,50 @@ function showCreationUI() {
  */
 function updatePetDisplay() {
   // TODO: Implement display updates
+  if (!currentPet) {
+    return;
+  }
+
+  if (elements.petDisplay) {
+    elements.petDisplay.textContent = currentPet.appearance;
+    elements.petDisplay.className = `pet-display pet-${currentPet.state}`;
+  }
+
+  if (elements.statusDisplay) {
+    elements.statusDisplay.textContent = currentPet.getStatusMessage();
+  }
+
+  updateMoodBar();
+  updateInfoDisplay();
 }
 
 /**
  * Update the mood level display bar
- * 
+ *
  * TODO: Implement this function to:
  * - Set the width of the mood bar based on the pet's mood level
  * - Change the color based on the mood level
  */
 function updateMoodBar() {
   // TODO: Implement mood bar updates
+  if (!elements.moodBar || !currentPet) {
+    return;
+  }
+
+  elements.moodBar.style.width = `${currentPet.moodLevel}%`;
+
+  if (currentPet.moodLevel >= 75) {
+    elements.moodBar.style.backgroundColor = '#4caf50'; // Green
+  } else if (currentPet.moodLevel >= 45) {
+    elements.moodBar.style.backgroundColor = '#ff9800'; // Orange
+  } else {
+    elements.moodBar.style.backgroundColor = '#f44336'; // Red
+  }
 }
 
 /**
  * Update the information display panel
- * 
+ *
  * TODO: Implement this function to:
  * - Show the pet's name, type, state, etc.
  * - Display the mood level bar
@@ -113,22 +190,88 @@ function updateMoodBar() {
  */
 function updateInfoDisplay() {
   // TODO: Implement info display updates
+  if (!elements.infoDisplay || !currentPet) {
+    return;
+  }
+
+  const lastFedTime = currentPet.lastFed.toLocaleTimeString();
+  const createdTime = currentPet.created.toLocaleDateString();
+
+  elements.infoDisplay.innerHTML = `
+
+
+      Name:
+      ${currentPet.name}
+
+
+
+
+      Type:
+      ${currentPet.type}
+
+
+
+
+      Mood:
+      ${currentPet.state} (${currentPet.moodLevel})
+
+
+
+
+      Mood Level:
+
+
+
+
+
+
+
+
+
+
+
+
+      Last Fed:
+      ${lastFedTime}
+
+
+
+
+      Created:
+      ${createdTime}
+
+
+  `;
+
+  elements.moodBar = document.getElementById('mood-bar');
+  updateMoodBar();
 }
 
 /**
  * Feed the current pet
- * 
+ *
  * TODO: Implement this function to:
  * - Call the pet's feed method
  * - Update the display with the new state
  */
 function feedPet() {
   // TODO: Implement feeding interaction
+  if (!currentPet) {
+    return;
+  }
+
+  const message = currentPet.feed();
+
+  if (elements.statusDisplay) {
+    elements.statusDisplay.textContent = message;
+  }
+
+  updatePetDisplay();
 }
 
 /**
  * Reset the pet simulator
- * 
+ *
  * TODO: Implement this function to:
  * - Clear the update interval
  * - Reset the current pet
@@ -136,12 +279,16 @@ function feedPet() {
  * - Show the creation UI
  */
 function resetPet() {
-  // TODO: Implement reset functionality
+  currentPet = null;
+  updateInterval = null;
+  elements = {};
+
+  initApp();
 }
 
 /**
  * Start the regular update cycle
- * 
+ *
  * TODO: Implement this function to:
  * - Clear any existing update interval
  * - Set up a new interval that:
@@ -150,6 +297,16 @@ function resetPet() {
  */
 function startUpdateCycle() {
   // TODO: Implement update cycle
+  if (updateInterval) {
+    clearInterval(updateInterval);
+  }
+
+  updateInterval = setInterval(() => {
+    if (currentPet) {
+      currentPet.updateState();
+      updatePetDisplay();
+    }
+  }, 1000);
 }
 
 // Initialize the app when the DOM is loaded
