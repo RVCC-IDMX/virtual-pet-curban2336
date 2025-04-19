@@ -10,9 +10,9 @@
 import { Pet, PetTypes, States } from './pet.js';
 
 // Application state variables
-const currentPet = null;
-const updateInterval = null;
-const elements = {};
+let currentPet = null;
+let updateInterval = null;
+let elements = {};
 
 /**
  * Initialize the application
@@ -152,8 +152,8 @@ function updatePetDisplay() {
     elements.statusDisplay.textContent = currentPet.getStatusMessage();
   }
 
-  updateMoodBar();
   updateInfoDisplay();
+  updateMoodBar();
 }
 
 /**
@@ -200,51 +200,26 @@ function updateInfoDisplay() {
   elements.infoDisplay.innerHTML = `
 
 
-      Name:
-      ${currentPet.name}
+    Name:${currentPet.name}<br>
 
+    Type:${currentPet.type}<br>
 
+    Mood:${currentPet.state} (${currentPet.moodLevel})<br>
 
+    Mood Level:
+    <div class='progress-bar'>
+    <div id='mood-bar' class='progress-fill'></div>
+    </div>
+    <br><br><br>
 
-      Type:
-      ${currentPet.type}
+    Last Fed:${lastFedTime}<br>
 
-
-
-
-      Mood:
-      ${currentPet.state} (${currentPet.moodLevel})
-
-
-
-
-      Mood Level:
-
-
-
-
-
-
-
-
-
-
-
-
-      Last Fed:
-      ${lastFedTime}
-
-
-
-
-      Created:
-      ${createdTime}
+    Created:${createdTime}<br>
 
 
   `;
 
   elements.moodBar = document.getElementById('mood-bar');
-  updateMoodBar();
 }
 
 /**
