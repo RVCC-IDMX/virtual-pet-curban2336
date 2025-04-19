@@ -66,6 +66,17 @@ const SpeechPhrases = {
   ]
 };
 
+const Personalities = {
+  //impatient increases mood depletion when not fed
+  impatient: 6,
+  //patient decreases mood depletion when not fed
+  patient: 1,
+  //decreases effectiveness of feed pet
+  hungry: 10,
+  //max starting mood
+  cheerful: 100
+};
+
 /**
  * Pet constructor function
  *
@@ -79,9 +90,37 @@ function Pet(name, type) {
   this.name = name || PetTypes.COW;
   this.type = type || 'Betty';
 
+  const pCheckOne = Math.random();
+  const pCheckTwo = Math.random();
+
+  // Personality assignment
+  if (pCheckOne > 0.4) {
+    if (pCheckTwo > 0.4) {
+      this.personality = Personalities.patient;
+      this.stringPersonality = 'patient';
+    } else {
+      this.personality = Personalities.cheerful;
+      this.stringPersonality = 'cheerful';
+    }
+  } else {
+    if (pCheckTwo > 0.4) {
+      this.personality = Personalities.hungry;
+      this.stringPersonality = 'hungry';
+    } else {
+      this.personality = Personalities.impatient;
+      this.stringPersonality = 'impatient';
+    }
+  }
+
   // TODO: Initialize state properties (mood level, state)
-  this.moodLevel = 80;
-  this.state = States.HAPPY;
+  //set starting mood and state based on personality
+  if (this.personality === Personalities.cheerful) {
+    this.moodLevel = this.personality;
+    this.state = States.ECSTATIC;
+  } else {
+    this.moodLevel = 80;
+    this.state = States.HAPPY;
+  }
 
   // TODO: Initialize timestamps (created, last fed)
   this.created = new Date();
@@ -108,7 +147,12 @@ function Pet(name, type) {
  */
 Pet.prototype.feed = function () {
   // TODO: Implement feed functionality
-  this.moodLevel = Math.min(100, this.moodLevel + 20);
+  //Personality changes effectiveness of food
+  if (this.personality === Personalities.hungry) {
+    this.moodLevel = Math.min(100, this.moodLevel + this.personality);
+  } else {
+    this.moodLevel = Math.min(100, this.moodLevel + 20);
+  }
 
   this.lastFed = new Date();
 
@@ -149,7 +193,13 @@ Pet.prototype.isHungry = function () {
 Pet.prototype.updateState = function () {
   // TODO: Implement state update
   if (this.isHungry()) {
-    this.moodLevel = Math.max(0, this.moodLevel - 2);
+
+    // personality changes rate at which mood goes down when not fed
+    if (this.personality === Personalities.impatient || this.personality === Personalities.patient) {
+      this.moodLevel = Math.max(0, this.moodLevel - this.personality);
+    } else {
+      this.moodLevel = Math.max(0, this.moodLevel - 2);
+    }
   }
 
   if (this.moodLevel >= 90) {
@@ -300,4 +350,4 @@ Pet.prototype.updateAppearance = function () {
 };
 
 // TODO: Export the Pet constructor and any necessary constants
-export { Pet, PetTypes, States };
+export { Pet, PetTypes, States, Personalities };
