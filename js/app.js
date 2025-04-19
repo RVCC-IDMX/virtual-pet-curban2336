@@ -298,9 +298,11 @@ function resetPet() {
 function startUpdateCycle() {
   // TODO: Implement update cycle
   if (updateInterval) {
+    // eslint-disable-next-line no-undef
     clearInterval(updateInterval);
   }
 
+  // eslint-disable-next-line no-undef
   updateInterval = setInterval(() => {
     if (currentPet) {
       currentPet.updateState();
