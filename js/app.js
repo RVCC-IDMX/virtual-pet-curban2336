@@ -204,6 +204,8 @@ function updateInfoDisplay() {
 
     Type:${currentPet.type}<br>
 
+    Personality:${currentPet.stringPersonality}<br>
+
     Mood:${currentPet.state} (${currentPet.moodLevel})<br>
 
     Mood Level:
